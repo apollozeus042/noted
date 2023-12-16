@@ -1,6 +1,16 @@
 import sqlite3 as sql
+from werkzeug.local import Local
 
-conn= sql.connect("Database/Noted.db")
+
+local = Local()
+
+def get_db():
+    if not hasattr(local, 'db'):
+        local.db = sql.connect("Database/Noted.db")
+        local.db.row_factory = sql.Row
+    return local.db
+
+conn = get_db()
 cur= conn.cursor()
 
 def createAccDB():
@@ -27,6 +37,8 @@ def addAcc(email, password, fname,mname,lname):
     conn.commit()
 
 def selectAcc(email):
+    conn = get_db()
+    cur = conn.cursor()
     sql="""
         SELECT * FROM AccountTable
         WHERE email=?
